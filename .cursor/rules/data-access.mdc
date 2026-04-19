@@ -1,0 +1,60 @@
+---
+description: Data access patterns — server components for reads, server actions for mutations, Zod for validation
+alwaysApply: true
+---
+
+# Data Access Patterns
+
+## Data Retrieval — Server Components Only
+
+Always fetch data in Server Components. Never fetch directly in Client Components.
+
+```typescript
+// ✅ GOOD — Server Component
+export default async function DeckList() {
+  const { userId } = await auth();
+  const decks = await db.query.decks.findMany({
+    where: eq(decks.userId, userId),
+  });
+  return <ul>{decks.map(d => <li key={d.id}>{d.name}</li>)}</ul>;
+}
+```
+
+## Mutations — Server Actions Only
+
+All inserts, updates, and deletes must be done via Server Actions. Never mutate data from a Client Component directly.
+
+```typescript
+// ✅ GOOD — Server Action in its own file or co-located with "use server"
+"use server";
+
+export async function createDeck(input: CreateDeckInput) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const parsed = createDeckSchema.safeParse(input);
+  if (!parsed.success) throw new Error("Invalid input");
+
+  await db.insert(decks).values({ ...parsed.data, userId });
+}
+```
+
+## Validation — Always Use Zod
+
+Every server action must validate its input with Zod before touching the database.
+
+```typescript
+import { z } from "zod";
+
+const createDeckSchema = z.object({
+  name: z.string().min(1).max(100),
+});
+
+type CreateDeckInput = z.infer<typeof createDeckSchema>;
+```
+
+## Rules
+
+- Never use `FormData` as a server action parameter type — always use a typed object
+- Define a Zod schema and derive the TypeScript type from it via `z.infer<>`
+- Always validate with `.safeParse()` and handle the error case before proceeding

@@ -1,0 +1,27 @@
+---
+description: Generate a new directory and write custom AI instructions for Cursor rules
+alwaysApply: true
+---
+
+# Generate Cursor Rules
+
+When the user asks to generate a new rule or set of instructions:
+
+1. **Create a new directory** under `.cursor/rules/` named after the rule topic (e.g. `.cursor/rules/my-rule-name/`)
+2. **Create a `.mdc` file** inside that directory (or directly in `.cursor/rules/`) with the following structure:
+
+```markdown
+---
+description: <brief description of what this rule does>
+alwaysApply: false  # or true if it should always apply
+globs: **/*.ts      # optional: only include if targeting specific files
+---
+
+# Rule Title
+
+Your custom instructions here...
+```
+
+3. **Ask the user** what instructions they want to include if not already specified.
+4. Keep rule content **concise and actionable** (under 50 lines).
+5. One concern per rule — split large rules into focused pieces.

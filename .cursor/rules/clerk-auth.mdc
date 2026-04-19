@@ -1,0 +1,63 @@
+---
+description: Clerk authentication and user data access security rules
+alwaysApply: true
+---
+
+# Clerk Auth & Data Access
+
+All authentication is handled by Clerk. Users must only be able to access their own data.
+
+## Getting the Current User
+
+Always use Clerk's server-side helpers to get the authenticated user:
+
+```typescript
+// Server Components / Route Handlers / Server Actions
+import { auth } from "@clerk/nextjs/server";
+
+const { userId } = await auth();
+if (!userId) {
+  // Return 401 or redirect to sign-in
+  throw new Error("Unauthorized");
+}
+```
+
+## Enforcing Ownership in DB Queries
+
+Always scope queries to the authenticated `userId`. Never trust client-supplied IDs.
+
+```typescript
+// ❌ BAD — fetches data without checking ownership
+const deck = await db.query.decks.findFirst({
+  where: eq(decks.id, deckId),
+});
+
+// ✅ GOOD — scopes query to the authenticated user
+const deck = await db.query.decks.findFirst({
+  where: and(eq(decks.id, deckId), eq(decks.userId, userId)),
+});
+```
+
+## Mutations Must Also Check Ownership
+
+```typescript
+// ✅ Always include userId filter on updates and deletes
+await db
+  .update(decks)
+  .set({ name: newName })
+  .where(and(eq(decks.id, deckId), eq(decks.userId, userId)));
+```
+
+## Schema Convention
+
+Every user-owned table must have a `userId` column:
+
+```typescript
+userId: text("user_id").notNull(), // Clerk user ID
+```
+
+## Rules
+
+- Never expose another user's data, even partially
+- Always validate `userId` before any DB read/write
+- Never rely on client-provided `userId` — always derive it from `auth()`
