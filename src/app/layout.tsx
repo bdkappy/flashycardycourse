@@ -27,7 +27,7 @@ export default function RootLayout({
         className={`${poppins.variable} antialiased`}
       >
         <ClerkProvider appearance={{ baseTheme: dark }}>
-          <header className="flex items-center justify-end gap-3 px-6 py-4 border-b border-white/10">
+          <header className="flex items-center justify-end gap-3 px-6 py-4 border-b border-border">
             <Show when="signed-out">
               <div className="flex items-center gap-3">
                 <SignInButton mode="modal">
