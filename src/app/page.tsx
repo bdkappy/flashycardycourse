@@ -1,7 +1,11 @@
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default async function Home() {
+  const { userId } = await auth();
+  if (userId) redirect("/dashboard");
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6">
       <div className="flex flex-col items-center gap-2">
