@@ -4,7 +4,7 @@ import Link from "next/link";
 import { db } from "@/db";
 import { decksTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -35,12 +35,10 @@ export default async function DashboardPage() {
               : `${decks.length} deck${decks.length === 1 ? "" : "s"}`}
           </p>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/decks/new">
-            <PlusIcon />
-            New Deck
-          </Link>
-        </Button>
+        <Link href="/dashboard/decks/new" className={buttonVariants()}>
+          <PlusIcon />
+          New Deck
+        </Link>
       </div>
 
       {decks.length === 0 ? (
@@ -50,12 +48,10 @@ export default async function DashboardPage() {
           <p className="text-muted-foreground mb-6 mt-1 text-sm">
             Create your first flashcard deck to start studying.
           </p>
-          <Button asChild>
-            <Link href="/dashboard/decks/new">
-              <PlusIcon />
-              Create Deck
-            </Link>
-          </Button>
+          <Link href="/dashboard/decks/new" className={buttonVariants()}>
+            <PlusIcon />
+            Create Deck
+          </Link>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
